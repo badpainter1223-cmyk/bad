@@ -15,15 +15,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
-      - run: npm ci
+          cache-dependency-path: 123/package-lock.json  # 若沒有 lock 可刪這行
+
+      # 進到子資料夾 123 裡執行
+      - run: npm ci || npm i
+        working-directory: 123
       - run: npm run build
+        working-directory: 123
+
+      # 上傳 build 產物（子資料夾的 dist）
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: 123/dist
 
   deploy:
     needs: build
